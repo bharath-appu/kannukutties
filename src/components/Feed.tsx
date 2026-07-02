@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getFeed } from '@/lib/actions/posts'
 import PostCard from './PostCard'
 import PostForm from './PostForm'
+import HeroScene from './HeroScene'
 import { useAuth } from './Providers'
 import { Loader2 } from 'lucide-react'
 import type { Post } from '@/lib/types'
@@ -23,6 +24,7 @@ export default function Feed() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pb-20 pt-4 md:pt-20">
+      <HeroScene />
       {user && <PostForm />}
 
       {loading ? (

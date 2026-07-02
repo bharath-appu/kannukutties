@@ -32,13 +32,13 @@ export async function middleware(request: NextRequest) {
 
   if (path.startsWith('/auth/callback')) return supabaseResponse
 
-  if (!user) {
+  if (!user && !isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (isAuthPage) {
+  if (user && isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
