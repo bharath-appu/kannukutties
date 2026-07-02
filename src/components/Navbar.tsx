@@ -11,6 +11,7 @@ import { logout } from '@/lib/actions/auth'
 import { getUnreadCounts } from '@/lib/actions/notifications'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import SplitText from '@/components/reactbits/SplitText'
 
 export default function Navbar() {
   const { user, loading } = useAuth()
@@ -91,7 +92,9 @@ export default function Navbar() {
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white md:top-0 md:bottom-auto md:border-b md:border-t-0">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-2">
-          <Link href="/" className="hidden text-xl font-bold md:block">Dribble</Link>
+          <Link href="/" className="hidden md:block">
+            <SplitText text="kanukuties" className="text-xl font-bold" stagger={0.03} />
+          </Link>
 
           <div className="hidden md:block flex-1 max-w-md mx-4">
             <form onSubmit={handleSearch} className="relative">
@@ -100,7 +103,7 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search Dribble"
+                placeholder="Search kanukuties"
                 className="w-full rounded-full bg-gray-100 py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               />
             </form>
@@ -129,7 +132,7 @@ export default function Navbar() {
 
             {user && (
               <button
-                onClick={() => logout()}
+                onClick={async () => { await logout(); window.location.href = '/login' }}
                 className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-gray-500 transition-colors hover:text-red-500 md:text-sm"
               >
                 <LogOut className="h-5 w-5" />
@@ -173,7 +176,7 @@ export default function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search Dribble..."
+                placeholder="Search kanukuties..."
                 autoFocus
                 className="w-full rounded-xl bg-white py-3 pl-12 pr-4 text-base shadow-lg outline-none"
               />

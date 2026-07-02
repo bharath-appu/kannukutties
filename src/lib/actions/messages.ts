@@ -6,8 +6,9 @@ import type { Conversation, Message } from '@/lib/types'
 
 export async function sendMessage(formData: FormData) {
   const supabase = await createClient()
+  if (!supabase) return { error: 'Not configured' }
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) return { error: 'Not authenticated' }
 
   const receiverId = formData.get('receiver_id') as string
   const content = formData.get('content') as string
@@ -18,7 +19,7 @@ export async function sendMessage(formData: FormData) {
     content,
   })
 
-  if (error) throw error
+  if (error) return { error: error.message }
 
   await supabase.from('notifications').insert({
     user_id: receiverId,
@@ -27,6 +28,7 @@ export async function sendMessage(formData: FormData) {
   })
 
   revalidatePath(`/messages/${receiverId}`)
+  return { success: true }
 }
 
 export async function getConversations(): Promise<Conversation[]> {

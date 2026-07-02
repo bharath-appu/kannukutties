@@ -51,12 +51,14 @@ export default function Chat({ otherUser }: Props) {
     const formData = new FormData()
     formData.append('receiver_id', otherUser.id)
     formData.append('content', content.trim())
-    try {
-      await sendMessage(formData)
-      setContent('')
-      const updated = await getMessages(otherUser.id)
-      setMessages(updated)
-    } catch {}
+    const result = await sendMessage(formData)
+    if (result?.error) {
+      setSending(false)
+      return
+    }
+    setContent('')
+    const updated = await getMessages(otherUser.id)
+    setMessages(updated)
     setSending(false)
   }
 

@@ -2,7 +2,7 @@ export default function SetupNotice() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="max-w-lg rounded-xl border bg-white p-8 text-center">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">Dribble</h1>
+        <h1 className="mb-4 text-2xl font-bold text-gray-900">kanukuties</h1>
         <div className="mb-6 rounded-lg bg-yellow-50 p-4 text-sm text-yellow-800">
           <p className="font-semibold">Supabase not configured</p>
           <p className="mt-1">

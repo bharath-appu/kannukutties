@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { Providers } from '@/components/Providers'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navbar from '@/components/Navbar'
+import ClickSpark from '@/components/reactbits/ClickSpark'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Dribble',
+  title: 'kanukuties',
   description: 'Share your world',
 }
 
@@ -32,9 +33,11 @@ export default function RootLayout({
         <ThemeProvider>
           <Providers>
             <Navbar />
-            <main className="mx-auto min-h-screen max-w-4xl px-4">
-              {children}
-            </main>
+            <ClickSpark sparkColor="#8b5cf6" sparks={8} sparkSize={6}>
+              <main className="mx-auto max-w-4xl px-4">
+                {children}
+              </main>
+            </ClickSpark>
           </Providers>
         </ThemeProvider>
       </body>

@@ -10,22 +10,13 @@ export async function middleware(request: NextRequest) {
   }
 
   const path = request.nextUrl.pathname
-  const protectedPaths = ['/upload', '/messages', '/notifications', '/settings']
-  const authPaths = ['/login', '/signup']
-  const isProtected = protectedPaths.some(p => path.startsWith(p))
-  const isAuthPage = authPaths.includes(path)
-
-  if (!isProtected && !isAuthPage && !path.startsWith('/auth/callback')) {
-    return NextResponse.next({ request })
-  }
+  const isAuthPage = path === '/login' || path === '/signup'
 
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(url, key, {
     cookies: {
-      getAll() {
-        return request.cookies.getAll()
-      },
+      getAll() { return request.cookies.getAll() },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
         supabaseResponse = NextResponse.next({ request })
@@ -39,15 +30,15 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
   const user = session?.user
 
-  if (isProtected && !user) {
+  if (path.startsWith('/auth/callback')) return supabaseResponse
+
+  if (!user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (path.startsWith('/auth/callback')) return supabaseResponse
-
-  if (user && isAuthPage) {
+  if (isAuthPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
@@ -58,6 +49,12 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/upload/:path*',
+    '/messages/:path*',
+    '/notifications/:path*',
+    '/settings/:path*',
+    '/login',
+    '/signup',
+    '/auth/:path*',
   ],
 }

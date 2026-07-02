@@ -29,7 +29,7 @@ function SearchContent() {
   if (!query) {
     return (
       <div className="rounded-xl border bg-white p-12 text-center">
-        <h3 className="text-lg font-semibold text-gray-900">Search Dribble</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Search kanukuties</h3>
         <p className="mt-1 text-sm text-gray-500">Find people and posts</p>
       </div>
     )

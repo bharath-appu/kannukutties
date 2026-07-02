@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Heart, MessageCircle, Trash2, FileText } from 'lucide-react'
+import { Heart, MessageCircle, Trash2, FileText, Mail } from 'lucide-react'
 import { toggleLike } from '@/lib/actions/likes'
 import { deletePost } from '@/lib/actions/posts'
 import { useState } from 'react'
@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from './Providers'
 import Lightbox from './Lightbox'
 import type { Post } from '@/lib/types'
+import SpotlightCard from '@/components/reactbits/SpotlightCard'
 
 interface Props {
   post: Post
@@ -63,7 +64,7 @@ export default function PostCard({ post, showFull }: Props) {
   }
 
   return (
-    <div className={`rounded-xl border bg-white ${showFull ? '' : 'transition-shadow hover:shadow-md'}`}>
+    <SpotlightCard spotlightColor="rgba(139, 92, 246, 0.08)" className={`rounded-xl border bg-white ${showFull ? '' : 'transition-shadow hover:shadow-md'}`}>
       <div className="p-4">
         <div className="flex items-start justify-between">
           <Link href={`/profile/${post.profiles?.username}`} className="flex items-center gap-3">
@@ -143,8 +144,18 @@ export default function PostCard({ post, showFull }: Props) {
             <MessageCircle className="h-5 w-5" />
             <span className="text-sm">{post.comments_count ?? 0}</span>
           </Link>
+          {user && !isOwner && post.profiles?.username && (
+            <Link
+              href={`/messages/${post.user_id}`}
+              className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors"
+              title={`Message ${post.profiles.display_name || post.profiles.username}`}
+            >
+              <Mail className="h-5 w-5" />
+              <span className="text-sm hidden sm:inline">Message</span>
+            </Link>
+          )}
         </div>
       </div>
-    </div>
+    </SpotlightCard>
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { login, signInWithGoogle } from '@/lib/actions/auth'
 import Link from 'next/link'
+import Aurora from '@/components/reactbits/Aurora'
 
 export default function LoginPage() {
   const [error, setError] = useState('')
@@ -15,8 +16,8 @@ export default function LoginPage() {
     setError('')
     const formData = new FormData(e.currentTarget)
     const result = await login(formData)
-    if (result?.error) setError(result.error)
-    setLoading(false)
+    if (result?.error) { setError(result.error); setLoading(false); return }
+    window.location.href = '/'
   }
 
   const handleGoogle = async () => {
@@ -32,14 +33,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <Aurora colorStops={["#8b5cf6", "#6366f1", "#3b82f6", "#8b5cf6"]} speed={3} blur={80} />
+      <div className="relative z-10 w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Dribble</h1>
-          <p className="mt-1 text-gray-500">Welcome back</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-lg">kanukuties</h1>
+          <p className="mt-1 text-gray-200">Welcome back</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border bg-white p-6">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-white/20 bg-white/90 p-6 backdrop-blur-sm">
           {error && (
             <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
           )}
@@ -50,7 +52,7 @@ export default function LoginPage() {
               name="email"
               type="email"
               required
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="you@example.com"
             />
           </div>
@@ -62,7 +64,7 @@ export default function LoginPage() {
               type="password"
               required
               minLength={6}
-              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-500"
               placeholder="••••••••"
             />
           </div>
@@ -70,17 +72,17 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-purple-600 py-2.5 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t" />
+              <div className="w-full border-t border-white/20" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <span className="bg-transparent px-2 text-gray-400">Or continue with</span>
             </div>
           </div>
 
@@ -88,7 +90,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogle}
             disabled={googleLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-lg border bg-white py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/30 bg-white/80 py-2.5 text-sm font-medium text-gray-700 hover:bg-white transition-colors disabled:opacity-50 backdrop-blur-sm"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -99,9 +101,9 @@ export default function LoginPage() {
             {googleLoading ? 'Redirecting...' : 'Sign in with Google'}
           </button>
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-400">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:underline">
+            <Link href="/signup" className="font-medium text-purple-300 hover:text-purple-200 underline">
               Sign up
             </Link>
           </p>
