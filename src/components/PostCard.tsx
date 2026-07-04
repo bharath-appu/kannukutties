@@ -112,7 +112,7 @@ export default function PostCard({ post, showFull }: Props) {
                   ) : type === 'document' ? (
                     <div className="flex items-center justify-between rounded-lg border p-3">
                       <a
-                        href={`https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
+                        href={url.match(/\.pdf$/i) ? url : `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 transition-colors hover:opacity-80"
