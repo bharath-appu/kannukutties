@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithGoogle } from '@/lib/actions/auth'
-import { createClient } from '@/lib/supabase/client'
+import { login, signInWithGoogle } from '@/lib/actions/auth'
 import Link from 'next/link'
 import Aurora from '@/components/reactbits/Aurora'
 
@@ -16,12 +15,8 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const supabase = createClient()
-    if (!supabase) { setError('Supabase not configured'); setLoading(false); return }
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    if (authError) { setError(authError.message); setLoading(false); return }
+    const result = await login(formData)
+    if (result?.error) { setError(result.error); setLoading(false); return }
     window.location.href = '/'
   }
 

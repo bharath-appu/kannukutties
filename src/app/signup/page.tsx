@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signInWithGoogle } from '@/lib/actions/auth'
-import { createClient } from '@/lib/supabase/client'
+import { signup, signInWithGoogle } from '@/lib/actions/auth'
 import Link from 'next/link'
 import Aurora from '@/components/reactbits/Aurora'
 
@@ -16,26 +15,8 @@ export default function SignupPage() {
     setLoading(true)
     setError('')
     const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-    const username = formData.get('username') as string
-    const display_name = formData.get('display_name') as string
-    const supabase = createClient()
-    if (!supabase) { setError('Supabase not configured'); setLoading(false); return }
-    const { error: authError, data } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username, display_name },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    if (authError) { setError(authError.message); setLoading(false); return }
-    if (data?.user?.identities?.length === 0) {
-      setError('An account with this email already exists.')
-      setLoading(false)
-      return
-    }
+    const result = await signup(formData)
+    if (result?.error) { setError(result.error); setLoading(false); return }
     window.location.href = '/'
   }
 
