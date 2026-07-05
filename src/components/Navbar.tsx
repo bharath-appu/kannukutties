@@ -6,6 +6,7 @@ import { useAuth } from './Providers'
 import {
   Home, Compass, PlusSquare, MessageCircle, Bell, User, LogOut, Search, Loader2, Sun, Moon,
 } from 'lucide-react'
+import VerifiedBadge from '@/components/VerifiedBadge'
 import { useTheme } from './ThemeProvider'
 import { logout } from '@/lib/actions/auth'
 import { getUnreadCounts } from '@/lib/actions/notifications'
@@ -22,6 +23,7 @@ export default function Navbar() {
   const [unreadMessages, setUnreadMessages] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [showMobileSearch, setShowMobileSearch] = useState(false)
+  const [isVerified, setIsVerified] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -30,6 +32,13 @@ export default function Navbar() {
       const counts = await getUnreadCounts()
       setUnreadNotifs(counts.notifications)
       setUnreadMessages(counts.messages)
+      const supabase = createClient()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_verified')
+        .eq('id', user.id)
+        .single()
+      setIsVerified(profile?.is_verified || false)
     }
     load()
 
@@ -83,7 +92,7 @@ export default function Navbar() {
       href: '/notifications', icon: Bell, label: 'Notifications', active: pathname === '/notifications',
       badge: unreadNotifs,
     },
-    { href: '/settings', icon: User, label: 'Profile', active: pathname === '/settings' },
+    { href: '/settings', icon: User, label: 'Profile', active: pathname === '/settings', badgeIcon: isVerified },
   ] : [
     { href: '/explore', icon: Compass, label: 'Explore', active: pathname === '/explore' },
   ]
@@ -125,8 +134,16 @@ export default function Navbar() {
                       {item.badge > 9 ? '9+' : item.badge}
                     </span>
                   ) : null}
+                  {(item as any).badgeIcon && (
+                    <span className="absolute -right-2 -top-1">
+                      <VerifiedBadge size={12} />
+                    </span>
+                  )}
                 </div>
-                <span className="hidden md:inline">{item.label}</span>
+                <span className="hidden md:inline flex items-center gap-1">
+                  {item.label}
+                  {(item as any).badgeIcon && <VerifiedBadge size={12} />}
+                </span>
               </Link>
             ))}
 

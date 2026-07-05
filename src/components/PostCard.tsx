@@ -10,6 +10,7 @@ import { useAuth } from './Providers'
 import Lightbox from './Lightbox'
 import type { Post } from '@/lib/types'
 import SpotlightCard from '@/components/reactbits/SpotlightCard'
+import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Props {
   post: Post
@@ -78,7 +79,10 @@ export default function PostCard({ post, showFull }: Props) {
               )}
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{post.profiles?.display_name || 'Unknown'}</p>
+              <p className="font-semibold text-gray-900 flex items-center gap-1">
+                {post.profiles?.display_name || 'Unknown'}
+                {post.profiles?.is_verified && <VerifiedBadge size={14} />}
+              </p>
               <p className="text-sm text-gray-500">@{post.profiles?.username} · {timeAgo(post.created_at)}</p>
             </div>
           </Link>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import FollowButton from './FollowButton'
 import type { Profile } from '@/lib/types'
+import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Props {
   profile: Profile
@@ -22,7 +23,10 @@ export default function UserCard({ profile }: Props) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-gray-900">{profile.display_name || profile.username}</p>
+        <p className="font-semibold text-gray-900 flex items-center gap-1">
+          {profile.display_name || profile.username}
+          {profile.is_verified && <VerifiedBadge size={14} />}
+        </p>
         <p className="truncate text-sm text-gray-500">@{profile.username}</p>
         {profile.bio && <p className="mt-1 line-clamp-1 text-xs text-gray-400">{profile.bio}</p>}
       </div>

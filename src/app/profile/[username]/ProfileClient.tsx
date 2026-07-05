@@ -9,6 +9,7 @@ import { useAuth } from '@/components/Providers'
 import Link from 'next/link'
 import { Calendar, MessageCircle, Settings } from 'lucide-react'
 import type { Profile } from '@/lib/types'
+import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Props {
   profile: Profile
@@ -87,8 +88,9 @@ export default function ProfileClient({ profile, isOwnProfile }: Props) {
           </div>
 
           <div className="mt-5">
-            <h1 className="text-xl font-bold text-gray-900 md:text-2xl">
+            <h1 className="text-xl font-bold text-gray-900 md:text-2xl flex items-center gap-1.5">
               {profile.display_name || profile.username}
+              {profile.is_verified && <VerifiedBadge size={22} />}
             </h1>
             <p className="text-sm text-gray-500">@{profile.username}</p>
           </div>

@@ -8,6 +8,16 @@ export interface Profile {
   banner_url: string | null
   bio: string | null
   created_at: string
+  is_verified?: boolean
+}
+
+export interface VerificationRequest {
+  id: string
+  user_id: string
+  utr: string
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+  reviewed_at: string | null
 }
 
 export interface Post {

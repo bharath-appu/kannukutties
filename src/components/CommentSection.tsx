@@ -6,6 +6,7 @@ import { useAuth } from './Providers'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { Comment } from '@/lib/types'
+import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Props {
   postId: string
@@ -94,8 +95,9 @@ export default function CommentSection({ postId }: Props) {
               </Link>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <Link href={`/profile/${comment.profiles?.username}`} className="text-sm font-semibold text-gray-900 hover:underline truncate">
+                  <Link href={`/profile/${comment.profiles?.username}`} className="text-sm font-semibold text-gray-900 hover:underline truncate flex items-center gap-1">
                     {comment.profiles?.display_name || 'Unknown'}
+                    {comment.profiles?.is_verified && <VerifiedBadge size={12} />}
                   </Link>
                   <span className="text-xs text-gray-400 shrink-0">{timeAgo(comment.created_at)}</span>
                 </div>

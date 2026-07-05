@@ -1,7 +1,7 @@
 -- Run this in Supabase SQL Editor
 
 -- Profiles
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   username TEXT UNIQUE NOT NULL,
   display_name TEXT,
@@ -13,7 +13,7 @@ CREATE TABLE public.profiles (
 );
 
 -- Posts
-CREATE TABLE public.posts (
+CREATE TABLE IF NOT EXISTS public.posts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   content TEXT,
@@ -24,7 +24,7 @@ CREATE TABLE public.posts (
 );
 
 -- Likes
-CREATE TABLE public.likes (
+CREATE TABLE IF NOT EXISTS public.likes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   post_id UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
@@ -33,7 +33,7 @@ CREATE TABLE public.likes (
 );
 
 -- Comments
-CREATE TABLE public.comments (
+CREATE TABLE IF NOT EXISTS public.comments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   post_id UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
@@ -43,7 +43,7 @@ CREATE TABLE public.comments (
 );
 
 -- Follows
-CREATE TABLE public.follows (
+CREATE TABLE IF NOT EXISTS public.follows (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   follower_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   following_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -52,7 +52,7 @@ CREATE TABLE public.follows (
 );
 
 -- Messages
-CREATE TABLE public.messages (
+CREATE TABLE IF NOT EXISTS public.messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sender_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   receiver_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -63,7 +63,7 @@ CREATE TABLE public.messages (
 );
 
 -- Notifications
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   actor_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -72,6 +72,32 @@ CREATE TABLE public.notifications (
   read BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Verification requests
+CREATE TABLE IF NOT EXISTS public.verification_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  utr TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  reviewed_at TIMESTAMPTZ
+);
+
+ALTER TABLE public.profiles
+  ADD COLUMN is_verified BOOLEAN DEFAULT false,
+  ADD COLUMN verified_at TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS idx_verification_requests_status ON public.verification_requests(status);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_receiver ON public.messages(sender_id, receiver_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver_unread ON public.messages(receiver_id) WHERE read_at IS NULL;
+
+ALTER TABLE public.verification_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can insert own requests"
+  ON public.verification_requests FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own requests"
+  ON public.verification_requests FOR SELECT USING (auth.uid() = user_id);
 
 -- Indexes
 CREATE INDEX idx_posts_user_id ON public.posts(user_id);
@@ -181,8 +207,10 @@ CREATE POLICY "Users can mark own notifications as read"
   ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
 
 -- Storage buckets
-INSERT INTO storage.buckets (id, name, public) VALUES ('media', 'media', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
+INSERT INTO storage.buckets (id, name, public) VALUES ('media', 'media', true)
+  ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true)
+  ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies
 CREATE POLICY "Media files are publicly accessible"

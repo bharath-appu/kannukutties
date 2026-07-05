@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import type { Conversation, Message } from '@/lib/types'
+import type { Conversation, Message, Profile } from '@/lib/types'
 
 export async function sendMessage(formData: FormData) {
   const supabase = await createClient()
@@ -36,52 +36,57 @@ export async function getConversations(): Promise<Conversation[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  const { data: sentMessages } = await supabase
-    .from('messages')
-    .select('receiver_id')
-    .eq('sender_id', user.id)
-    .order('created_at', { ascending: false })
-
-  const { data: receivedMessages } = await supabase
-    .from('messages')
-    .select('sender_id')
-    .eq('receiver_id', user.id)
-    .order('created_at', { ascending: false })
+  const [sentResult, receivedResult] = await Promise.all([
+    supabase.from('messages').select('receiver_id').eq('sender_id', user.id),
+    supabase.from('messages').select('sender_id').eq('receiver_id', user.id),
+  ])
 
   const userIds = new Set<string>()
-  sentMessages?.forEach((m: any) => userIds.add(m.receiver_id))
-  receivedMessages?.forEach((m: any) => userIds.add(m.sender_id))
+  sentResult.data?.forEach(m => userIds.add(m.receiver_id))
+  receivedResult.data?.forEach(m => userIds.add(m.sender_id))
+
+  if (userIds.size === 0) return []
+
+  const [profileResult, messagesResult, unreadResult] = await Promise.all([
+    supabase.from('profiles').select('*').in('id', [...userIds]),
+    supabase.from('messages').select('*')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+      .limit(200),
+    supabase.from('messages').select('sender_id')
+      .eq('receiver_id', user.id)
+      .is('read_at', null),
+  ])
+
+  const profileMap = new Map<string, Profile>()
+  for (const p of profileResult.data || []) {
+    profileMap.set(p.id, p as Profile)
+  }
+
+  const lastMessageMap = new Map<string, any>()
+  const seen = new Set<string>()
+  for (const msg of messagesResult.data || []) {
+    const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id
+    const key = [user.id, otherId].sort().join(':')
+    if (!seen.has(key)) {
+      seen.add(key)
+      lastMessageMap.set(otherId, msg)
+    }
+  }
+
+  const unreadCounts = new Map<string, number>()
+  for (const msg of unreadResult.data || []) {
+    unreadCounts.set(msg.sender_id, (unreadCounts.get(msg.sender_id) || 0) + 1)
+  }
 
   const conversations: Conversation[] = []
-
   for (const otherId of userIds) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', otherId)
-      .single()
-
+    const profile = profileMap.get(otherId)
     if (!profile) continue
-
-    const { data: messages } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-      .or(`sender_id.eq.${otherId},receiver_id.eq.${otherId}`)
-      .order('created_at', { ascending: false })
-      .limit(1)
-
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('sender_id', otherId)
-      .eq('receiver_id', user.id)
-      .is('read_at', null)
-
     conversations.push({
       user: profile,
-      last_message: messages?.[0] || null,
-      unread_count: count || 0,
+      last_message: lastMessageMap.get(otherId) || null,
+      unread_count: unreadCounts.get(otherId) || 0,
     })
   }
 
@@ -99,7 +104,7 @@ export async function getMessages(otherUserId: string): Promise<Message[]> {
 
   const { data } = await supabase
     .from('messages')
-    .select('*, sender:profiles!sender_id(*)')
+    .select('*')
     .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
     .or(`sender_id.eq.${otherUserId},receiver_id.eq.${otherUserId}`)
     .order('created_at', { ascending: true })
