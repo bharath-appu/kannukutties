@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export async function submitVerificationRequest(utr: string) {
   const supabase = await createClient()
@@ -64,7 +64,9 @@ export async function approveVerification(userId: string) {
   if (!user) throw new Error('Not authenticated')
   if (!checkAdminEmail(user.email)) throw new Error('Not authorized')
 
-  const { error: reqError } = await supabase
+  const serviceClient = createServiceClient()
+
+  const { error: reqError } = await serviceClient
     .from('verification_requests')
     .update({ status: 'approved', reviewed_at: new Date().toISOString() })
     .eq('user_id', userId)
@@ -72,7 +74,7 @@ export async function approveVerification(userId: string) {
 
   if (reqError) throw reqError
 
-  const { error: profileError } = await supabase
+  const { error: profileError } = await serviceClient
     .from('profiles')
     .update({ is_verified: true, verified_at: new Date().toISOString() })
     .eq('id', userId)
@@ -87,7 +89,9 @@ export async function rejectVerification(userId: string) {
   if (!user) throw new Error('Not authenticated')
   if (!checkAdminEmail(user.email)) throw new Error('Not authorized')
 
-  const { error } = await supabase
+  const serviceClient = createServiceClient()
+
+  const { error } = await serviceClient
     .from('verification_requests')
     .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
     .eq('user_id', userId)
@@ -101,8 +105,10 @@ export async function getPendingVerifications() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
+  if (!checkAdminEmail(user.email)) return null
 
-  const { data } = await supabase
+  const serviceClient = createServiceClient()
+  const { data } = await serviceClient
     .from('verification_requests')
     .select('*, profiles:user_id(id, username, display_name, avatar_url)')
     .eq('status', 'pending')
