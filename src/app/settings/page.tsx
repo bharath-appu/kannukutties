@@ -44,10 +44,9 @@ export default function SettingsPage() {
     })
     getMyVerificationStatus().then(setVerifStatus)
     getPendingVerifications().then(list => {
-      if (list.length > 0) {
-        setPendingList(list)
-        setIsAdmin(true)
-      }
+      if (list === null) return
+      setPendingList(list)
+      setIsAdmin(true)
     })
   }, [user])
 

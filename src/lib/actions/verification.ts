@@ -100,8 +100,8 @@ export async function rejectVerification(userId: string) {
 export async function getPendingVerifications() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
-  if (!checkAdminEmail(user.email)) return []
+  if (!user) return null
+  if (!checkAdminEmail(user.email)) return null
 
   const { data } = await supabase
     .from('verification_requests')
