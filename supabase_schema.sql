@@ -99,6 +99,9 @@ CREATE POLICY "Users can insert own requests"
 CREATE POLICY "Users can read own requests"
   ON public.verification_requests FOR SELECT USING (auth.uid() = user_id);
 
+CREATE POLICY "Authenticated users can read all requests"
+  ON public.verification_requests FOR SELECT USING (auth.role() = 'authenticated');
+
 -- Indexes
 CREATE INDEX idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX idx_posts_created_at ON public.posts(created_at DESC);

@@ -393,7 +393,7 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {isAdmin && pendingList.length > 0 && (
+        {isAdmin && (
           <div className="rounded-xl border bg-white overflow-hidden">
             <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4">
               <h2 className="font-bold text-white flex items-center gap-2">
@@ -402,40 +402,46 @@ export default function SettingsPage() {
               </h2>
             </div>
             <div className="p-4 space-y-3">
-              {pendingList.map(req => (
-                <div key={req.id} className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50 transition-colors">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-gray-900 text-sm truncate">
-                        {req.profiles?.display_name || req.profiles?.username}
-                      </p>
-                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200">
-                        <svg viewBox="0 0 24 24" fill="none" className="h-2.5 w-2.5 text-gray-400">
-                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor" />
-                        </svg>
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500">@{req.profiles?.username}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      UTR: <span className="font-mono">{req.utr}</span> · {new Date(req.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5 shrink-0">
-                    <button
-                      onClick={() => handleApprove(req.user_id)}
-                      className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
-                    >
-                      ✓ Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(req.user_id)}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      ✕ Reject
-                    </button>
-                  </div>
+              {pendingList.length === 0 ? (
+                <div className="p-6 text-center text-sm text-gray-500">
+                  {'No pending verification requests.'}
                 </div>
-              ))}
+              ) : (
+                pendingList.map(req => (
+                  <div key={req.id} className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50 transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-900 text-sm truncate">
+                          {req.profiles?.display_name || req.profiles?.username}
+                        </p>
+                        <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-200">
+                          <svg viewBox="0 0 24 24" fill="none" className="h-2.5 w-2.5 text-gray-400">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor" />
+                          </svg>
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">@{req.profiles?.username}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        UTR: <span className="font-mono">{req.utr}</span> · {new Date(req.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleApprove(req.user_id)}
+                        className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+                      >
+                        ✓ Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(req.user_id)}
+                        className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        ✕ Reject
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
