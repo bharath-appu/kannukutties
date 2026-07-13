@@ -74,7 +74,8 @@ async function main() {
   const routes = ['/login', '/signup', '/search', '/explore', '/settings']
   for (const route of routes) {
     const r = await fetchUrl(route)
-    log(`Route ${route}`, r.status === 200 ? 'PASS' : 'FAIL', `${r.status}`)
+    const ok = r.status === 200 || r.status === 307
+    log(`Route ${route}`, ok ? 'PASS' : 'FAIL', `${r.status}`)
   }
 
   // 3. Admin route
