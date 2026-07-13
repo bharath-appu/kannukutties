@@ -76,13 +76,24 @@ export async function approveVerification(userId: string) {
 
   if (reqError) throw reqError
 
+  const { data: targetProfile } = await serviceClient
+    .from('profiles')
+    .select('username')
+    .eq('id', userId)
+    .single()
+
   const { error: profileError } = await serviceClient
     .from('profiles')
     .update({ is_verified: true, verified_at: new Date().toISOString() })
     .eq('id', userId)
 
   if (profileError) throw profileError
+
   revalidatePath('/settings')
+  revalidatePath('/')
+  if (targetProfile?.username) {
+    revalidatePath(`/profile/${targetProfile.username}`)
+  }
 }
 
 export async function rejectVerification(userId: string) {
