@@ -120,3 +120,35 @@ export async function getPendingVerifications() {
     return data || []
   } catch { return null }
 }
+
+export async function getAllUsers() {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    if (!checkAdminEmail(user.email)) return null
+
+    const serviceClient = createServiceClient()
+    const { data: profiles } = await serviceClient
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    const { data: requests } = await serviceClient
+      .from('verification_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    const requestsByUser: Record<string, any> = {}
+    for (const req of requests || []) {
+      if (!requestsByUser[req.user_id]) {
+        requestsByUser[req.user_id] = req
+      }
+    }
+
+    return (profiles || []).map(p => ({
+      ...p,
+      verification: requestsByUser[p.id] || null,
+    }))
+  } catch { return null }
+}
