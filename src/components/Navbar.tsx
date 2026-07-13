@@ -221,7 +221,7 @@ export default function Navbar() {
       )}
 
       {/* Desktop top search bar */}
-      <div className="hidden md:fixed md:top-0 md:left-[68px] md:right-0 md:z-40 md:border-b md:border-[var(--border)] md:bg-[var(--background)] md:px-4 md:py-2">
+      <div className="max-md:hidden fixed top-0 left-[68px] right-0 z-40 border-b border-[var(--border)] bg-[var(--background)] px-4 py-2">
         <div className="mx-auto max-w-[600px]">
           <form onSubmit={handleSearch} className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />

@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './Providers'
 import Lightbox from './Lightbox'
+import PDFViewer from './PDFViewer'
 import { proxyMediaUrl } from '@/lib/media'
 import type { Post } from '@/lib/types'
 import VerifiedBadge from '@/components/VerifiedBadge'
@@ -24,6 +25,7 @@ export default function PostCard({ post, showFull }: Props) {
   const [likesCount, setLikesCount] = useState(post.likes_count ?? 0)
   const [isDeleting, setIsDeleting] = useState(false)
   const [lightbox, setLightbox] = useState<{ src: string; type?: string } | null>(null)
+  const [pdfViewer, setPdfViewer] = useState<string | null>(null)
   const isOwner = user?.id === post.user_id
 
   const handleLike = async () => {
@@ -127,15 +129,13 @@ export default function PostCard({ post, showFull }: Props) {
                       </button>
                     ) : type === 'document' ? (
                       <div className="flex items-center justify-between border border-[var(--border)] rounded-[16px] p-3">
-                        <a
-                          href={proxyMediaUrl(url) ?? url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => setPdfViewer(proxyMediaUrl(url) ?? url)}
                           className="flex items-center gap-3 transition-colors hover:opacity-80"
                         >
                           <FileText className="h-8 w-8 shrink-0 text-[#1D9BF0]" />
                           <span className="text-sm font-medium text-[var(--text-primary)]">View</span>
-                        </a>
+                        </button>
                         <a href={proxyMediaUrl(url) ?? url} download className="rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                           Download
                         </a>
@@ -150,6 +150,7 @@ export default function PostCard({ post, showFull }: Props) {
           )}
 
           {lightbox && <Lightbox src={lightbox.src} type={lightbox.type} onClose={() => setLightbox(null)} />}
+          {pdfViewer && <PDFViewer src={pdfViewer} filename={post.media_urls?.[0]?.split('/').pop()} onClose={() => setPdfViewer(null)} />}
 
           <div className="mt-3 flex items-center justify-between max-w-[400px]">
             <Link href={`/post/${post.id}`} className="group flex items-center gap-1 text-[var(--text-secondary)] transition-colors hover:text-[#1D9BF0]">

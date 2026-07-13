@@ -6,14 +6,16 @@ import { searchPosts } from '@/lib/actions/posts'
 import { searchProfiles } from '@/lib/actions/profiles'
 import PostCard from '@/components/PostCard'
 import UserCard from '@/components/UserCard'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Search } from 'lucide-react'
 import type { Post, Profile } from '@/lib/types'
 
 function SearchContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const query = searchParams.get('q') || ''
   const [posts, setPosts] = useState<Post[]>([])
   const [profiles, setProfiles] = useState<Profile[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [tab, setTab] = useState<'top' | 'people' | 'posts'>('top')
 
@@ -31,6 +33,19 @@ function SearchContent() {
       <div className="px-4 py-12 text-center">
         <h3 className="text-lg font-bold text-[var(--text-primary)]">Search kanukuties</h3>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">Find people and posts</p>
+        <div className="mt-6 max-w-sm mx-auto">
+          <form onSubmit={(e) => { e.preventDefault(); router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`) }} className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search kanukuties..."
+              autoFocus
+              className="w-full rounded-full border border-[var(--border)] bg-transparent py-2 pl-10 pr-4 text-sm text-[var(--foreground)] placeholder:text-[var(--text-secondary)] outline-none focus:border-[#1D9BF0]"
+            />
+          </form>
+        </div>
       </div>
     )
   }

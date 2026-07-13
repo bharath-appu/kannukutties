@@ -24,10 +24,12 @@ export async function GET(request: Request) {
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const body = await response.arrayBuffer()
 
+    const isPdf = contentType === 'application/pdf'
     return new NextResponse(body, {
       status: 200,
       headers: {
         'Content-Type': contentType,
+        'Content-Disposition': isPdf ? 'inline' : 'inline',
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     })
