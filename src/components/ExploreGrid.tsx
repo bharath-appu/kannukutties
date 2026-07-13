@@ -19,22 +19,22 @@ export default function ExploreGrid() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#1D9BF0]" />
       </div>
     )
   }
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-8 text-center">
-        <h3 className="text-lg font-semibold text-gray-900">Nothing to explore yet</h3>
-        <p className="mt-1 text-sm text-gray-500">Posts will appear here once people start sharing!</p>
+      <div className="px-4 py-12 text-center">
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">Nothing to explore yet</h3>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">Posts will appear here once people start sharing!</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {posts.map(post => (
         <PostCard key={post.id} post={post} />
       ))}

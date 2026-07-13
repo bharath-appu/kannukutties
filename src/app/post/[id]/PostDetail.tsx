@@ -10,9 +10,9 @@ interface Props {
 
 export default function PostDetail({ post }: Props) {
   return (
-    <div className="py-4 md:py-8">
+    <div>
       <PostCard post={post} showFull />
-      <div className="mt-6">
+      <div className="border-b border-[var(--border)]">
         <CommentSection postId={post.id} />
       </div>
     </div>

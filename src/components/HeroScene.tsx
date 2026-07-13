@@ -23,15 +23,13 @@ export default function HeroScene({
           blur={60}
         />
         <div className="relative z-10 flex flex-col items-center gap-6 p-8 md:flex-row md:gap-10">
-          {imageUrl && (
-            <div className="h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-2 border-white/30 shadow-xl md:h-40 md:w-40">
-              <img
-                src={imageUrl}
-                alt="Hero"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          )}
+          <div className="h-32 w-32 shrink-0 overflow-hidden rounded-2xl border-2 border-white/30 shadow-xl md:h-40 md:w-40">
+            <img
+              src={imageUrl || '/cat.webp'}
+              alt="kanukuties"
+              className="h-full w-full object-contain"
+            />
+          </div>
           <div className="text-center md:text-left">
             <SplitText
               text={title}

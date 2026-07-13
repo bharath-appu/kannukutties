@@ -29,28 +29,30 @@ export async function submitVerificationRequest(utr: string) {
 }
 
 export async function getMyVerificationStatus() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
 
-  const { data: req } = await supabase
-    .from('verification_requests')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    const { data: req } = await supabase
+      .from('verification_requests')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_verified')
-    .eq('id', user.id)
-    .single()
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_verified')
+      .eq('id', user.id)
+      .single()
 
-  return {
-    isVerified: profile?.is_verified || false,
-    request: req,
-  }
+    return {
+      isVerified: profile?.is_verified || false,
+      request: req,
+    }
+  } catch { return null }
 }
 
 function checkAdminEmail(userEmail: string | undefined) {
@@ -102,17 +104,19 @@ export async function rejectVerification(userId: string) {
 }
 
 export async function getPendingVerifications() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  if (!checkAdminEmail(user.email)) return null
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    if (!checkAdminEmail(user.email)) return null
 
-  const serviceClient = createServiceClient()
-  const { data } = await serviceClient
-    .from('verification_requests')
-    .select('*, profiles:user_id(id, username, display_name, avatar_url)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false })
+    const serviceClient = createServiceClient()
+    const { data } = await serviceClient
+      .from('verification_requests')
+      .select('*, profiles:user_id(id, username, display_name, avatar_url)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
 
-  return data || []
+    return data || []
+  } catch { return null }
 }

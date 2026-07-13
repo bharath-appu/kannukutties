@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { getFeed } from '@/lib/actions/posts'
 import PostCard from './PostCard'
-import PostForm from './PostForm'
-import HeroScene from './HeroScene'
 import { useAuth } from './Providers'
 import { Loader2 } from 'lucide-react'
 import type { Post } from '@/lib/types'
@@ -23,25 +21,22 @@ export default function Feed() {
   }, [refreshKey])
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 pb-20 pt-4 md:pt-20">
-      <HeroScene />
-      {user && <PostForm />}
-
+    <div>
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#1D9BF0]" />
         </div>
       ) : posts.length === 0 ? (
-        <div className="rounded-xl border bg-white p-8 text-center">
-          <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
-          <p className="mt-1 text-sm text-gray-500">
+        <div className="px-4 py-12 text-center">
+          <h3 className="text-lg font-bold text-[var(--text-primary)]">No posts yet</h3>
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">
             {user
               ? 'Follow some people or create your first post!'
               : 'Explore what people are sharing!'}
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div>
           {posts.map(post => (
             <PostCard key={post.id} post={post} />
           ))}
@@ -49,10 +44,10 @@ export default function Feed() {
       )}
 
       {posts.length > 0 && !loading && (
-        <div className="text-center">
+        <div className="border-b border-[var(--border)] py-4 text-center">
           <button
             onClick={() => setRefreshKey(k => k + 1)}
-            className="text-sm text-blue-600 hover:text-blue-700"
+            className="text-sm text-[#1D9BF0] hover:underline"
           >
             Refresh feed
           </button>

@@ -23,23 +23,23 @@ export default function ProfileGrid({ userId }: Props) {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#1D9BF0]" />
       </div>
     )
   }
 
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-12 text-center">
-        <Grid3X3 className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-        <h3 className="text-lg font-semibold text-gray-900">No posts yet</h3>
-        <p className="text-sm text-gray-500">When they post, it&apos;ll show up here.</p>
+      <div className="px-4 py-12 text-center">
+        <Grid3X3 className="mx-auto mb-3 h-12 w-12 text-[var(--text-secondary)]" />
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">No posts yet</h3>
+        <p className="text-sm text-[var(--text-secondary)]">When they post, it&apos;ll show up here.</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {posts.map(post => (
         <PostCard key={post.id} post={post} />
       ))}

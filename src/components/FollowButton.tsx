@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { toggleFollow, isFollowing } from '@/lib/actions/follows'
 import { useAuth } from './Providers'
 import { useRouter } from 'next/navigation'
-import { UserPlus, UserMinus } from 'lucide-react'
 
 interface Props {
   targetUserId: string
@@ -33,28 +32,20 @@ export default function FollowButton({ targetUserId }: Props) {
     setLoading(false)
   }
 
-  if (loading) return <div className="h-9 w-24 animate-pulse rounded-full bg-gray-200" />
+  if (loading) return <div className="h-9 w-24 animate-pulse rounded-full bg-[var(--surface)]" />
   if (user?.id === targetUserId) return null
 
   return (
     <button
       onClick={handleClick}
       disabled={loading}
-      className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+      className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
         following
-          ? 'border border-gray-300 bg-white text-gray-700 hover:border-red-300 hover:text-red-500'
-          : 'bg-blue-600 text-white hover:bg-blue-700'
+          ? 'border border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-[#F4212E] hover:text-[#F4212E]'
+          : 'bg-[#1D9BF0] text-white hover:bg-[#1A8CD8]'
       }`}
     >
-      {following ? (
-        <>
-          <UserMinus className="h-4 w-4" /> Following
-        </>
-      ) : (
-        <>
-          <UserPlus className="h-4 w-4" /> Follow
-        </>
-      )}
+      {following ? 'Following' : 'Follow'}
     </button>
   )
 }

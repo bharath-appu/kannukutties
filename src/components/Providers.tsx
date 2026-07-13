@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
+import LoadingScreen from './LoadingScreen'
 
 type AuthContextType = {
   user: User | null
@@ -21,18 +22,36 @@ export function Providers({ children }: { children: ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
+    if (!supabase) {
       setLoading(false)
-    })
+      return
+    }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => {
+        setUser(user)
+        setLoading(false)
+      })
+      .catch(() => {
+        setUser(null)
+        setLoading(false)
+      })
+
+    let subscription: { unsubscribe: () => void } | null = null
+    try {
+      const sub = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+        setLoading(false)
+      })
+      subscription = sub.data.subscription
+    } catch {
       setLoading(false)
-    })
+    }
 
-    return () => subscription.unsubscribe()
+    return () => subscription?.unsubscribe()
   }, [])
+
+  if (loading) return <LoadingScreen />
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

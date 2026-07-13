@@ -10,8 +10,7 @@ export default async function UploadPage() {
   if (!user) redirect('/login')
 
   return (
-    <div className="py-4 md:py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Create Post</h1>
+    <div>
       <PostForm />
     </div>
   )

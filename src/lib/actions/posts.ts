@@ -23,7 +23,8 @@ export async function createPost(formData: FormData) {
 
   if (error) return { error: error.message }
   revalidatePath('/')
-  revalidatePath(`/profile/${user.id}`)
+  const { data: profile } = await supabase.from('profiles').select('username').eq('id', user.id).single()
+  if (profile) revalidatePath(`/profile/${profile.username}`)
   return { success: true }
 }
 
@@ -71,7 +72,6 @@ export async function getFeed() {
       .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
       .order('created_at', { ascending: false })
       .limit(20)
-
     return parsePosts(data)
   }
 
@@ -88,7 +88,7 @@ export async function getFeed() {
     .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
     .in('user_id', followingIds)
     .order('created_at', { ascending: false })
-    .limit(20)
+    .limit(50)
 
   return parsePosts(data)
 }

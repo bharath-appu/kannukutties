@@ -10,8 +10,10 @@ export default async function MessagesPage() {
   if (!user) redirect('/login')
 
   return (
-    <div className="py-4 md:py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Messages</h1>
+    <div>
+      <div className="border-b border-[var(--border)] px-4 py-3">
+        <h1 className="text-lg font-bold text-[var(--text-primary)]">Messages</h1>
+      </div>
       <ConversationList />
     </div>
   )

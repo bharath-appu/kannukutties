@@ -40,9 +40,9 @@ export default function PostForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border bg-white p-4">
+    <form onSubmit={handleSubmit} className="border-b border-[var(--border)] px-4 py-3">
       <div className="flex gap-3">
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-purple-500">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#1D9BF0]">
           <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
             {user.email?.[0].toUpperCase() || '?'}
           </div>
@@ -51,19 +51,19 @@ export default function PostForm() {
           <textarea
             value={content}
             onChange={e => setContent(e.target.value)}
-            placeholder="What's on your mind?"
+            placeholder="What's happening?"
             rows={3}
-            className="w-full resize-none rounded-lg border-0 bg-transparent p-0 text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0"
+            className="w-full resize-none rounded-[4px] border-0 bg-transparent p-0 text-[15px] text-[var(--foreground)] outline-none placeholder:text-[var(--text-secondary)] focus:ring-0"
             maxLength={2000}
           />
           <MediaUploader onMediaChange={setMedia} />
-          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-          <div className="mt-3 flex items-center justify-between border-t pt-3">
-            <span className="text-xs text-gray-400">{content.length}/2000</span>
+          {error && <p className="mt-2 text-sm text-[#F4212E]">{error}</p>}
+          <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3">
+            <span className="text-xs text-[var(--text-secondary)]">{content.length}/2000</span>
             <button
               type="submit"
               disabled={submitting || (!content.trim() && media.length === 0)}
-              className="rounded-full bg-blue-600 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-full bg-[#1D9BF0] px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-[#1A8CD8] disabled:opacity-50"
             >
               {submitting ? 'Posting...' : 'Post'}
             </button>

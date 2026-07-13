@@ -36,7 +36,8 @@ export async function toggleFollow(targetUserId: string) {
     })
   }
 
-  revalidatePath(`/profile/${targetUserId}`)
+  const { data: targetProfile } = await supabase.from('profiles').select('username').eq('id', targetUserId).single()
+  if (targetProfile) revalidatePath(`/profile/${targetProfile.username}`)
 }
 
 export async function isFollowing(targetUserId: string) {

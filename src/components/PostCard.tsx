@@ -1,15 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { Heart, MessageCircle, Trash2, FileText, Mail } from 'lucide-react'
+import { Heart, MessageCircle, Trash2, FileText, Mail, Repeat2 } from 'lucide-react'
 import { toggleLike } from '@/lib/actions/likes'
 import { deletePost } from '@/lib/actions/posts'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from './Providers'
 import Lightbox from './Lightbox'
+import { proxyMediaUrl } from '@/lib/media'
 import type { Post } from '@/lib/types'
-import SpotlightCard from '@/components/reactbits/SpotlightCard'
 import VerifiedBadge from '@/components/VerifiedBadge'
 
 interface Props {
@@ -65,101 +65,116 @@ export default function PostCard({ post, showFull }: Props) {
   }
 
   return (
-    <SpotlightCard spotlightColor="rgba(139, 92, 246, 0.08)" className={`rounded-xl border bg-white ${showFull ? '' : 'transition-shadow hover:shadow-md'}`}>
-      <div className="p-4">
-        <div className="flex items-start justify-between">
-          <Link href={`/profile/${post.profiles?.username}`} className="flex items-center gap-3">
-            <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-purple-500">
-              {post.profiles?.avatar_url ? (
-                <img src={post.profiles.avatar_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
-                  {post.profiles?.display_name?.[0] || '?'}
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900 flex items-center gap-1">
-                {post.profiles?.display_name || 'Unknown'}
-                {post.profiles?.is_verified && <VerifiedBadge size={14} />}
-              </p>
-              <p className="text-sm text-gray-500">@{post.profiles?.username} · {timeAgo(post.created_at)}</p>
-            </div>
-          </Link>
-          {isOwner && (
-            <button onClick={handleDelete} disabled={isDeleting} className="text-gray-400 hover:text-red-500">
-              <Trash2 className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        {post.content && (
-          <Link href={`/post/${post.id}`}>
-            <p className={`mt-3 text-gray-800 ${showFull ? '' : 'line-clamp-3'}`}>{post.content}</p>
-          </Link>
-        )}
-
-        {post.media_urls?.length > 0 && (
-          <div className={`mt-3 grid gap-2 ${post.media_urls.length === 1 ? '' : 'grid-cols-2'}`}>
-            {post.media_urls.map((url, i) => {
-              const type = post.media_types?.[i]
-              return (
-                <div key={i} className="overflow-hidden rounded-lg bg-gray-100">
-                  {type === 'image' ? (
-                    <button onClick={() => setLightbox({ src: url, type: 'image' })} className="w-full">
-                      <img src={url} alt="" className="max-h-80 w-full cursor-pointer object-contain transition-opacity hover:opacity-90" loading="lazy" />
-                    </button>
-                  ) : type === 'video' ? (
-                    <button onClick={() => setLightbox({ src: url, type: 'video' })} className="w-full">
-                      <video src={url} className="max-h-80 w-full cursor-pointer object-contain" />
-                    </button>
-                  ) : type === 'document' ? (
-                    <div className="flex items-center justify-between rounded-lg border p-3">
-                      <a
-                        href={url.match(/\.pdf$/i) ? url : `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 transition-colors hover:opacity-80"
-                      >
-                        <FileText className="h-8 w-8 shrink-0 text-blue-500" />
-                        <span className="text-sm font-medium text-gray-700">View</span>
-                      </a>
-                      <a href={url} download className="rounded-lg border px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors">
-                        Download
-                      </a>
-                    </div>
-                  ) : (
-                    <audio src={url} controls className="h-16 w-full" />
-                  )}
-                </div>
-              )
-            })}
+    <div className={`border-b border-[var(--border)] px-4 py-3 ${showFull ? '' : 'cursor-pointer hover:bg-[var(--surface-hover)]'} transition-colors`}>
+      <div className="flex gap-3">
+        <Link href={`/profile/${post.profiles?.username}`} className="shrink-0">
+          <div className="h-10 w-10 overflow-hidden rounded-full bg-[#1D9BF0]">
+            {post.profiles?.avatar_url ? (
+              <img src={proxyMediaUrl(post.profiles.avatar_url)!} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
+                {post.profiles?.display_name?.[0] || '?'}
+              </div>
+            )}
           </div>
-        )}
+        </Link>
 
-        {lightbox && <Lightbox src={lightbox.src} type={lightbox.type} onClose={() => setLightbox(null)} />}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 min-w-0">
+              <Link href={`/profile/${post.profiles?.username}`} className="flex items-center gap-1 hover:underline">
+                <span className="truncate text-[15px] font-bold text-[var(--text-primary)]">
+                  {post.profiles?.display_name || 'Unknown'}
+                </span>
+                {post.profiles?.is_verified && <VerifiedBadge size={14} />}
+              </Link>
+              <span className="truncate text-[15px] text-[var(--text-secondary)]">
+                @{post.profiles?.username}
+              </span>
+              <span className="text-[15px] text-[var(--text-secondary)]">·</span>
+              <span className="shrink-0 text-[15px] text-[var(--text-secondary)]">
+                {timeAgo(post.created_at)}
+              </span>
+            </div>
+            {isOwner && (
+              <button onClick={handleDelete} disabled={isDeleting} className="shrink-0 p-1 text-[var(--text-secondary)] hover:text-[#F4212E] transition-colors">
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-        <div className="mt-3 flex items-center gap-6">
-          <button onClick={handleLike} className={`flex items-center gap-1.5 transition-colors ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}>
-            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
-            <span className="text-sm">{likesCount}</span>
-          </button>
-          <Link href={`/post/${post.id}`} className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500">
-            <MessageCircle className="h-5 w-5" />
-            <span className="text-sm">{post.comments_count ?? 0}</span>
-          </Link>
-          {user && !isOwner && post.profiles?.username && (
-            <Link
-              href={`/messages/${post.user_id}`}
-              className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors"
-              title={`Message ${post.profiles.display_name || post.profiles.username}`}
-            >
-              <Mail className="h-5 w-5" />
-              <span className="text-sm hidden sm:inline">Message</span>
+          {post.content && (
+            <Link href={`/post/${post.id}`}>
+              <p className={`mt-1 text-[15px] leading-[20px] text-[var(--text-primary)] ${showFull ? '' : 'line-clamp-3'}`}>
+                {post.content}
+              </p>
             </Link>
           )}
+
+          {post.media_urls?.length > 0 && (
+            <div className={`mt-3 grid gap-2 ${post.media_urls.length === 1 ? '' : 'grid-cols-2'}`}>
+              {post.media_urls.map((url, i) => {
+                const type = post.media_types?.[i]
+                return (
+                  <div key={i} className="overflow-hidden rounded-[16px] bg-[var(--surface)]">
+                    {type === 'image' ? (
+                      <button onClick={() => setLightbox({ src: proxyMediaUrl(url)!, type: 'image' })} className="w-full">
+                        <img src={proxyMediaUrl(url)} alt="" className="max-h-80 w-full cursor-pointer object-contain transition-opacity hover:opacity-90" loading="lazy" />
+                      </button>
+                    ) : type === 'video' ? (
+                      <button onClick={() => setLightbox({ src: proxyMediaUrl(url)!, type: 'video' })} className="w-full">
+                        <video src={proxyMediaUrl(url)} className="max-h-80 w-full cursor-pointer object-contain" />
+                      </button>
+                    ) : type === 'document' ? (
+                      <div className="flex items-center justify-between border border-[var(--border)] rounded-[16px] p-3">
+                        <a
+                          href={proxyMediaUrl(url) ?? url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 transition-colors hover:opacity-80"
+                        >
+                          <FileText className="h-8 w-8 shrink-0 text-[#1D9BF0]" />
+                          <span className="text-sm font-medium text-[var(--text-primary)]">View</span>
+                        </a>
+                        <a href={proxyMediaUrl(url) ?? url} download className="rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                          Download
+                        </a>
+                      </div>
+                    ) : (
+                      <audio src={proxyMediaUrl(url)} controls className="h-16 w-full" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {lightbox && <Lightbox src={lightbox.src} type={lightbox.type} onClose={() => setLightbox(null)} />}
+
+          <div className="mt-3 flex items-center justify-between max-w-[400px]">
+            <Link href={`/post/${post.id}`} className="group flex items-center gap-1 text-[var(--text-secondary)] transition-colors hover:text-[#1D9BF0]">
+              <MessageCircle className="h-[18px] w-[18px]" />
+              <span className="text-xs">{post.comments_count ?? 0}</span>
+            </Link>
+            <button className="group flex items-center gap-1 text-[var(--text-secondary)] transition-colors hover:text-[#00BA7C]">
+              <Repeat2 className="h-[18px] w-[18px]" />
+            </button>
+            <button onClick={handleLike} className={`group flex items-center gap-1 transition-colors ${liked ? 'text-[#F91880]' : 'text-[var(--text-secondary)] hover:text-[#F91880]'}`}>
+              <Heart className={`h-[18px] w-[18px] ${liked ? 'fill-current' : ''}`} />
+              <span className={`text-xs ${liked ? 'text-[#F91880]' : ''}`}>{likesCount}</span>
+            </button>
+            {user && !isOwner && post.profiles?.username && (
+              <Link
+                href={`/messages/${post.profiles.username}`}
+                className="group flex items-center gap-1 text-[var(--text-secondary)] transition-colors hover:text-[#1D9BF0]"
+                title={`Message ${post.profiles.display_name || post.profiles.username}`}
+              >
+                <Mail className="h-[18px] w-[18px]" />
+              </Link>
+            )}
+          </div>
         </div>
       </div>
-    </SpotlightCard>
+    </div>
   )
 }

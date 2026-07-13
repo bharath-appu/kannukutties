@@ -32,9 +32,9 @@ export default function Lightbox({ src, type, onClose }: Props) {
         <X className="h-6 w-6" />
       </button>
       {type === 'video' ? (
-        <video src={src} controls className="max-h-full max-w-full rounded-lg" onClick={e => e.stopPropagation()} />
+        <video src={src} controls className="max-h-full max-w-full rounded-[16px]" onClick={e => e.stopPropagation()} />
       ) : (
-        <img src={src} alt="" className="max-h-full max-w-full rounded-lg object-contain" onClick={e => e.stopPropagation()} />
+        <img src={src} alt="" className="max-h-full max-w-full rounded-[16px] object-contain" onClick={e => e.stopPropagation()} />
       )}
     </div>
   )
