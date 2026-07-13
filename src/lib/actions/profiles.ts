@@ -60,6 +60,16 @@ export async function getProfile(username: string) {
     .eq('username', username)
     .single()
 
+  if (data && !data.is_verified) {
+    const { data: verifReq } = await supabase
+      .from('verification_requests')
+      .select('status')
+      .eq('user_id', data.id)
+      .eq('status', 'approved')
+      .maybeSingle()
+    if (verifReq) data.is_verified = true
+  }
+
   return data
 }
 
@@ -74,6 +84,16 @@ export async function getCurrentProfile() {
       .select('*')
       .eq('id', user.id)
       .single()
+
+    if (data && !data.is_verified) {
+      const { data: verifReq } = await supabase
+        .from('verification_requests')
+        .select('status')
+        .eq('user_id', user.id)
+        .eq('status', 'approved')
+        .maybeSingle()
+      if (verifReq) data.is_verified = true
+    }
 
     return data
   } catch { return null }

@@ -82,12 +82,10 @@ export async function approveVerification(userId: string) {
     .eq('id', userId)
     .single()
 
-  const { error: profileError } = await serviceClient
+  await serviceClient
     .from('profiles')
     .update({ is_verified: true, verified_at: new Date().toISOString() })
     .eq('id', userId)
-
-  if (profileError) throw profileError
 
   revalidatePath('/settings')
   revalidatePath('/')

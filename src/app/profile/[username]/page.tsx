@@ -43,6 +43,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   if (!profile) notFound()
 
+  if (!profile.is_verified) {
+    const { data: verifReq } = await supabase
+      .from('verification_requests')
+      .select('status')
+      .eq('user_id', profile.id)
+      .eq('status', 'approved')
+      .maybeSingle()
+    if (verifReq) profile.is_verified = true
+  }
+
   const { data: { user } } = await supabase.auth.getUser()
   const isOwnProfile = user?.id === profile.id
 
