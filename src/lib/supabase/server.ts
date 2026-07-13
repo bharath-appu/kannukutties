@@ -8,7 +8,9 @@ function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT)
   const signal = controller.signal as AbortSignal
-  return fetch(input, { ...init, signal }).finally(() => clearTimeout(timer))
+  return fetch(input, { ...init, signal })
+    .finally(() => clearTimeout(timer))
+    .catch(() => new Response(null, { status: 502, statusText: 'Gateway Timeout' }))
 }
 
 export async function createClient() {
