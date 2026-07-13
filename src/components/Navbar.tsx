@@ -8,7 +8,6 @@ import {
 } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { logout } from '@/lib/actions/auth'
-import { getUnreadCounts } from '@/lib/actions/notifications'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -25,15 +24,22 @@ export default function Navbar() {
   useEffect(() => {
     if (!user) return
 
+    const client = createClient()
+    if (!client) return
+
     const load = async () => {
-      const counts = await getUnreadCounts()
-      setUnreadNotifs(counts.notifications)
-      setUnreadMessages(counts.messages)
+      try {
+        const [{ count: notifCount }, { count: msgCount }] = await Promise.all([
+          client.from('notifications').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('read', false),
+          client.from('messages').select('*', { count: 'exact', head: true }).eq('receiver_id', user.id).is('read_at', null),
+        ])
+        setUnreadNotifs(notifCount || 0)
+        setUnreadMessages(msgCount || 0)
+      } catch {}
     }
     load()
 
-    const supabase = createClient()
-    const channel = supabase
+    const channel = client
       .channel('notifications')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -43,7 +49,7 @@ export default function Navbar() {
       }, () => load())
       .subscribe()
 
-    const msgChannel = supabase
+    const msgChannel = client
       .channel('messages')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -54,8 +60,8 @@ export default function Navbar() {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
-      supabase.removeChannel(msgChannel)
+      client.removeChannel(channel)
+      client.removeChannel(msgChannel)
     }
   }, [user])
 

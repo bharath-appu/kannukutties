@@ -100,12 +100,15 @@ export async function getCurrentProfile() {
 }
 
 export async function searchProfiles(query: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('profiles')
-    .select('*')
-    .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
-    .limit(20)
+  try {
+    const supabase = await createClient()
+    if (!supabase) return []
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+      .limit(20)
 
-  return data || []
+    return data || []
+  } catch { return [] }
 }

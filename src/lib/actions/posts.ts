@@ -63,77 +63,92 @@ function parsePost(post: any): any {
 }
 
 export async function getFeed() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    if (!supabase) return []
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
+    if (!user) {
+      const { data } = await supabase
+        .from('posts')
+        .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
+        .order('created_at', { ascending: false })
+        .limit(20)
+      return parsePosts(data)
+    }
+
+    const { data: following } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+
+    const followingIds = following?.map(f => f.following_id) || []
+    followingIds.push(user.id)
+
+    const { data } = await supabase
+      .from('posts')
+      .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
+      .in('user_id', followingIds)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
+    return parsePosts(data)
+  } catch { return [] }
+}
+
+export async function getExplorePosts() {
+  try {
+    const supabase = await createClient()
+    if (!supabase) return []
     const { data } = await supabase
       .from('posts')
       .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(50)
+
     return parsePosts(data)
-  }
-
-  const { data: following } = await supabase
-    .from('follows')
-    .select('following_id')
-    .eq('follower_id', user.id)
-
-  const followingIds = following?.map(f => f.following_id) || []
-  followingIds.push(user.id)
-
-  const { data } = await supabase
-    .from('posts')
-    .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
-    .in('user_id', followingIds)
-    .order('created_at', { ascending: false })
-    .limit(50)
-
-  return parsePosts(data)
-}
-
-export async function getExplorePosts() {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('posts')
-    .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
-    .order('created_at', { ascending: false })
-    .limit(50)
-
-  return parsePosts(data)
+  } catch { return [] }
 }
 
 export async function getPost(postId: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('posts')
-    .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
-    .eq('id', postId)
-    .single()
+  try {
+    const supabase = await createClient()
+    if (!supabase) return null
+    const { data } = await supabase
+      .from('posts')
+      .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
+      .eq('id', postId)
+      .single()
 
-  return parsePost(data)
+    return parsePost(data)
+  } catch { return null }
 }
 
 export async function getUserPosts(userId: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('posts')
-    .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  try {
+    const supabase = await createClient()
+    if (!supabase) return []
+    const { data } = await supabase
+      .from('posts')
+      .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-  return parsePosts(data)
+    return parsePosts(data)
+  } catch { return [] }
 }
 
 export async function searchPosts(query: string) {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('posts')
-    .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
-    .ilike('content', `%${query}%`)
-    .order('created_at', { ascending: false })
-    .limit(20)
+  try {
+    const supabase = await createClient()
+    if (!supabase) return []
+    const { data } = await supabase
+      .from('posts')
+      .select('*, profiles!inner(*), likes_count:likes(count), comments_count:comments(count)')
+      .ilike('content', `%${query}%`)
+      .order('created_at', { ascending: false })
+      .limit(20)
 
-  return parsePosts(data)
+    return parsePosts(data)
+  } catch { return [] }
 }

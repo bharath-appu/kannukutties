@@ -2,6 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 
+const QUERY_TIMEOUT = 4000
+
+function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT)
+  const signal = controller.signal as AbortSignal
+  return fetch(input, { ...init, signal }).finally(() => clearTimeout(timer))
+}
+
 export async function createClient() {
   try {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -23,6 +32,7 @@ export async function createClient() {
           )
         },
       },
+      global: { fetch: fetchWithTimeout },
     })
   } catch { return null as any }
 }
@@ -35,5 +45,6 @@ export function createServiceClient() {
 
   return createSupabaseClient(url, key, {
     auth: { persistSession: false },
+    global: { fetch: fetchWithTimeout },
   })
 }
