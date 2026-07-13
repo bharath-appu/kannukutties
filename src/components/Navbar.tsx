@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from './Providers'
 import {
-  Home, Compass, PlusSquare, MessageCircle, Bell, User, LogOut, LogIn, Search, Loader2, Sun, Moon,
+  Home, Compass, PlusSquare, MessageCircle, Bell, User, LogOut, LogIn, Search, Loader2, Sun, Moon, BadgeCheck,
 } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { logout } from '@/lib/actions/auth'
@@ -77,6 +77,7 @@ export default function Navbar() {
 
   const navItems = user ? [
     { href: '/', icon: Home, label: 'Home', active: pathname === '/' },
+    { href: '/search', icon: Search, label: 'Search', active: pathname === '/search' },
     { href: '/explore', icon: Compass, label: 'Explore', active: pathname === '/explore' },
     { href: '/upload', icon: PlusSquare, label: 'Upload', active: pathname === '/upload' },
     {
@@ -88,10 +89,12 @@ export default function Navbar() {
       badge: unreadNotifs,
     },
     { href: '/settings', icon: User, label: 'Profile', active: pathname === '/settings' },
+    { href: '/admin', icon: BadgeCheck, label: 'Admin', active: pathname === '/admin' },
   ] : [
+    { href: '/search', icon: Search, label: 'Search', active: pathname === '/search' },
+    { href: '/explore', icon: Compass, label: 'Explore', active: pathname === '/explore' },
     { href: '/login', icon: LogIn, label: 'Login', active: pathname === '/login' },
     { href: '/signup', icon: User, label: 'Sign Up', active: pathname === '/signup' },
-    { href: '/explore', icon: Compass, label: 'Explore', active: pathname === '/explore' },
   ]
 
   return (
